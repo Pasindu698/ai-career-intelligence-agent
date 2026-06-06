@@ -1,4 +1,9 @@
 import streamlit as st
+from src.report_generator import (
+    generate_recommendations,
+    generate_strengths,
+    generate_weaknesses
+)
 
 from src.pdf_reader import extract_text_from_pdf
 from src.skill_extractor import extract_skills
@@ -40,6 +45,9 @@ if st.button("Analyze"):
         missing_skills = find_missing_skills(cv_skills, jd_skills)
         recommendations = generate_recommendations(missing_skills)
 
+        strengths = generate_strengths(cv_skills)
+        weaknesses = generate_weaknesses(missing_skills)
+
         st.success("Analysis completed!")
 
         col1, col2, col3 = st.columns(3)
@@ -65,6 +73,16 @@ if st.button("Analyze"):
             st.write(missing_skills)
         else:
             st.success("No missing skills found!")
+
+        st.subheader("💪 Strengths")
+
+        for strength in strengths:
+            st.success(strength)
+
+        st.subheader("⚠ Weaknesses")
+
+        for weakness in weaknesses:
+            st.warning(weakness)
         
         st.subheader("📚 Learning Roadmap")
 

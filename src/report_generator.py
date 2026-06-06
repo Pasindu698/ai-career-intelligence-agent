@@ -40,3 +40,34 @@ def generate_recommendations(missing_skills):
             )
 
     return recommendations
+
+def generate_strengths(cv_skills):
+
+    strengths = []
+
+    if "python" in cv_skills:
+        strengths.append("Strong Python programming skills")
+
+    if "sql" in cv_skills:
+        strengths.append("Good database and SQL knowledge")
+
+    if "power bi" in cv_skills:
+        strengths.append("Experience with Business Intelligence and dashboards")
+
+    if "machine learning" in cv_skills:
+        strengths.append("Knowledge of Machine Learning concepts")
+
+    if "git" in cv_skills and "github" in cv_skills:
+        strengths.append("Version control and collaboration experience")
+
+    return strengths
+
+
+def generate_weaknesses(missing_skills):
+
+    weaknesses = []
+
+    for skill in missing_skills:
+        weaknesses.append(f"Missing skill: {skill}")
+
+    return weaknesses
