@@ -139,3 +139,79 @@ def create_pdf_report(score, cv_skills, jd_skills, missing_skills, recommendatio
     c.save()
 
     return file_path
+
+def generate_resume_feedback(cv_skills):
+
+    feedback = []
+
+    if "python" in cv_skills:
+        feedback.append(
+            "Strong Python programming skills detected."
+        )
+
+    if "sql" in cv_skills:
+        feedback.append(
+            "Good database and SQL knowledge."
+        )
+
+    if "power bi" in cv_skills:
+        feedback.append(
+            "Business Intelligence and dashboard experience is a valuable strength."
+        )
+
+    if "machine learning" in cv_skills:
+        feedback.append(
+            "Machine Learning knowledge improves suitability for Data Science roles."
+        )
+
+    if "aws" not in cv_skills:
+        feedback.append(
+            "Consider learning cloud technologies such as AWS to improve employability."
+        )
+
+    if "pandas" not in cv_skills:
+        feedback.append(
+            "Pandas is commonly required in Data Science positions."
+        )
+
+    return feedback
+
+def generate_resume_feedback(score, missing_skills, cv_skills):
+
+    feedback = []
+
+    if score < 50:
+        feedback.append(
+            "Your resume has a low match with this job description. Focus on adding the most relevant skills and projects for this role."
+        )
+
+    elif score < 75:
+        feedback.append(
+            "Your resume has a moderate match. Improve your CV by highlighting missing skills and relevant project experience."
+        )
+
+    else:
+        feedback.append(
+            "Your resume has a strong match. You can improve further by adding measurable achievements and role-specific keywords."
+        )
+
+    if missing_skills:
+        feedback.append(
+            "Add or improve evidence for missing skills such as: " + ", ".join(missing_skills) + "."
+        )
+
+    if "python" in cv_skills and "sql" in cv_skills:
+        feedback.append(
+            "Your Python and SQL skills are valuable. Highlight them clearly in your summary and project descriptions."
+        )
+
+    if "power bi" in cv_skills:
+        feedback.append(
+            "Your Power BI experience is useful for data and BI roles. Add dashboard screenshots or KPI-based project outcomes if possible."
+        )
+
+    feedback.append(
+        "Use action verbs and measurable outcomes in project bullet points, such as improved accuracy, reduced processing time, or built dashboards for decision-making."
+    )
+
+    return feedback

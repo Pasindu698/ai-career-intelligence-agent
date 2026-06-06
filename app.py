@@ -1,6 +1,5 @@
 import streamlit as st
 
-from src.role_recommender import recommend_roles
 from src.pdf_reader import extract_text_from_pdf
 from src.skill_extractor import extract_skills
 from src.matcher import calculate_match_score, find_missing_skills
@@ -8,58 +7,171 @@ from src.report_generator import (
     generate_recommendations,
     generate_strengths,
     generate_weaknesses,
+    generate_resume_feedback,
     create_pdf_report
 )
+from src.role_recommender import recommend_roles
 
 st.set_page_config(
     page_title="AI Career Intelligence Agent",
-    page_icon="🤖",
+    page_icon="🚀",
     layout="wide"
 )
 
 st.markdown("""
 <style>
-.block-container {
-    padding-top: 2rem;
+.stApp {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #020617 100%);
+    color: #f8fafc;
 }
 
-.section-box {
-    background-color: #ffffff;
-    padding: 18px;
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+.hero-card {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 28px;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+    margin-bottom: 25px;
+}
+
+.hero-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.hero-subtitle {
+    font-size: 18px;
+    color: #cbd5e1;
+}
+
+.result-card {
+    background: rgba(255, 255, 255, 0.09);
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    margin-bottom: 18px;
+}
+
+.metric-card {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    padding: 22px;
+    border-radius: 18px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 16px 35px rgba(37, 99, 235, 0.25);
+}
+
+.metric-value {
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.metric-label {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.skill-pill {
+    display: inline-block;
+    background: rgba(59, 130, 246, 0.18);
+    color: #bfdbfe;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 999px;
+    border: 1px solid rgba(147, 197, 253, 0.25);
+    font-size: 14px;
+}
+
+.missing-pill {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.18);
+    color: #fecaca;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 999px;
+    border: 1px solid rgba(252, 165, 165, 0.25);
+    font-size: 14px;
+}
+
+.stButton > button {
+    width: 100%;
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 16px;
+    padding: 12px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+    border: none;
+}
+
+.stDownloadButton > button {
+    width: 100%;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: white;
+    border: none;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🤖 AI Career Intelligence Agent")
-
 st.markdown("""
-### Smart Resume & Job Description Analyzer
-Analyze your CV against a job description and receive an ATS score, missing skills, strengths, weaknesses, learning roadmap, and downloadable career report.
-""")
+<div class="hero-card">
+    <div class="hero-title">🚀 AI Career Intelligence Agent</div>
+    <div class="hero-subtitle">
+        Upload your resume, paste a job description, and get an ATS match score,
+        missing skills, career role recommendations, learning roadmap, and a downloadable report.
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 with st.sidebar:
-    st.header("📌 About")
-    st.write("This AI Career Intelligence Agent helps job seekers evaluate their CV against job descriptions.")
+    st.title("⚙️ Dashboard")
+    st.write("Smart resume and job description analyzer for career preparation.")
 
-    st.header("⚙️ Features")
+    st.markdown("---")
+    st.subheader("Features")
     st.write("✅ ATS Match Score")
-    st.write("✅ Missing Skills")
+    st.write("✅ Skill Gap Analysis")
     st.write("✅ Learning Roadmap")
     st.write("✅ Strengths & Weaknesses")
+    st.write("✅ Role Recommendations")
     st.write("✅ PDF Career Report")
 
-uploaded_cv = st.file_uploader("Upload your CV PDF", type=["pdf"])
+    st.markdown("---")
+    st.caption("Built with Python, Streamlit, PyPDF, and ReportLab.")
 
-job_description = st.text_area(
-    "Paste Job Description",
-    height=220,
-    placeholder="Paste the full job description here..."
-)
+left_col, right_col = st.columns([1, 1], gap="large")
 
-if st.button("Analyze"):
+with left_col:
+    st.subheader("📄 Upload Resume")
+    uploaded_cv = st.file_uploader("Upload your CV PDF", type=["pdf"])
+
+with right_col:
+    st.subheader("🧾 Job Description")
+    job_description = st.text_area(
+        "Paste Job Description",
+        height=180,
+        placeholder="Paste the full job description here..."
+    )
+
+analyze_button = st.button("Analyze Career Match")
+
+if analyze_button:
     if uploaded_cv is None:
         st.error("Please upload your CV PDF.")
 
@@ -81,60 +193,113 @@ if st.button("Analyze"):
         strengths = generate_strengths(cv_skills)
         weaknesses = generate_weaknesses(missing_skills)
         role_recommendations = recommend_roles(cv_skills)
+        resume_feedback = generate_resume_feedback(score, missing_skills, cv_skills)
 
-        st.success("Analysis completed!")
+        st.success("Analysis completed successfully!")
 
-        col1, col2, col3 = st.columns(3)
+        m1, m2, m3 = st.columns(3)
 
-        with col1:
-            st.metric("ATS Match Score", f"{score}%")
+        with m1:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-value">{score}%</div>
+                    <div class="metric-label">ATS Match Score</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        with col2:
-            st.metric("CV Skills Found", len(cv_skills))
+        with m2:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-value">{len(cv_skills)}</div>
+                    <div class="metric-label">CV Skills Found</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        with col3:
-            st.metric("JD Skills Required", len(jd_skills))
+        with m3:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-value">{len(jd_skills)}</div>
+                    <div class="metric-label">JD Skills Required</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        st.divider()
+        st.markdown("<br>", unsafe_allow_html=True)
 
-        st.subheader("✅ Skills Found in Your CV")
-        st.write(cv_skills)
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">✅ Skills Found in Your CV</div>', unsafe_allow_html=True)
+        if cv_skills:
+            st.markdown(
+                " ".join([f'<span class="skill-pill">{skill}</span>' for skill in cv_skills]),
+                unsafe_allow_html=True
+            )
+        else:
+            st.info("No skills detected in your CV.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("📌 Skills Required in Job Description")
-        st.write(jd_skills)
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📌 Skills Required in Job Description</div>', unsafe_allow_html=True)
+        if jd_skills:
+            st.markdown(
+                " ".join([f'<span class="skill-pill">{skill}</span>' for skill in jd_skills]),
+                unsafe_allow_html=True
+            )
+        else:
+            st.info("No skills detected in the job description.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("⚠️ Missing Skills")
-
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">⚠️ Missing Skills</div>', unsafe_allow_html=True)
         if missing_skills:
-            st.write(missing_skills)
+            st.markdown(
+                " ".join([f'<span class="missing-pill">{skill}</span>' for skill in missing_skills]),
+                unsafe_allow_html=True
+            )
         else:
             st.success("No missing skills found!")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("💪 Strengths")
+        col_a, col_b = st.columns(2)
 
-        if strengths:
-            for strength in strengths:
-                st.success(strength)
-        else:
-            st.info("No major strengths detected yet.")
+        with col_a:
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">💪 Strengths</div>', unsafe_allow_html=True)
+            if strengths:
+                for strength in strengths:
+                    st.success(strength)
+            else:
+                st.info("No major strengths detected yet.")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("⚠ Weaknesses")
+        with col_b:
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">⚠ Weaknesses</div>', unsafe_allow_html=True)
+            if weaknesses:
+                for weakness in weaknesses:
+                    st.warning(weakness)
+            else:
+                st.success("No major weaknesses found.")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        if weaknesses:
-            for weakness in weaknesses:
-                st.warning(weakness)
-        else:
-            st.success("No major weaknesses found.")
-
-        st.subheader("📚 Learning Roadmap")
-
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📚 Learning Roadmap</div>', unsafe_allow_html=True)
         if recommendations:
             for recommendation in recommendations:
                 st.write("•", recommendation)
         else:
             st.success("Excellent! No major skill gaps found.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("🎯 Recommended Career Roles")
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">🎯 Recommended Career Roles</div>', unsafe_allow_html=True)
 
         for role in role_recommendations[:4]:
             st.write(f"**{role['role']}** - {role['score']}% match")
@@ -145,8 +310,16 @@ if st.button("Analyze"):
                 st.caption(f"Missing skills: {', '.join(role['missing_skills'])}")
 
             st.write("---")
-            
-        st.divider()
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">🤖 Resume Improvement Suggestions</div>', unsafe_allow_html=True)
+
+        for feedback in resume_feedback:
+            st.info(feedback)
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
         pdf_path = create_pdf_report(
             score,
