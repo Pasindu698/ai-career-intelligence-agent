@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+from src.ai_feedback import generate_gemini_feedback
 from src.pdf_reader import extract_text_from_pdf
 from src.skill_extractor import extract_skills
 from src.matcher import calculate_match_score, find_missing_skills
@@ -349,6 +350,30 @@ if analyze_button:
 
         for feedback in resume_feedback:
             st.info(feedback)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-title">🤖 Gemini AI Resume Review</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-title">🤖 Gemini AI Resume Review</div>',
+            unsafe_allow_html=True
+        )
+
+        with st.spinner("Gemini is analyzing your resume..."):
+            ai_feedback = generate_gemini_feedback(
+                cv_text,
+                job_description,
+                score,
+                missing_skills
+            )
+
+            st.markdown(ai_feedback)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
