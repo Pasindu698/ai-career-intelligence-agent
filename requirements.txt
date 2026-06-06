@@ -5,3 +5,4 @@ scikit-learn
 pypdf
 python-dotenv
 nltk
+reportlab

@@ -1,14 +1,14 @@
 import streamlit as st
-from src.report_generator import (
-    generate_recommendations,
-    generate_strengths,
-    generate_weaknesses
-)
 
 from src.pdf_reader import extract_text_from_pdf
 from src.skill_extractor import extract_skills
 from src.matcher import calculate_match_score, find_missing_skills
-from src.report_generator import generate_recommendations
+from src.report_generator import (
+    generate_recommendations,
+    generate_strengths,
+    generate_weaknesses,
+    create_pdf_report
+)
 
 st.set_page_config(
     page_title="AI Career Intelligence Agent",
@@ -30,8 +30,10 @@ job_description = st.text_area(
 if st.button("Analyze"):
     if uploaded_cv is None:
         st.error("Please upload your CV PDF.")
+
     elif job_description.strip() == "":
         st.error("Please paste a job description.")
+
     else:
         with open("data/resumes/uploaded_cv.pdf", "wb") as file:
             file.write(uploaded_cv.getbuffer())
@@ -44,7 +46,6 @@ if st.button("Analyze"):
         score = calculate_match_score(cv_skills, jd_skills)
         missing_skills = find_missing_skills(cv_skills, jd_skills)
         recommendations = generate_recommendations(missing_skills)
-
         strengths = generate_strengths(cv_skills)
         weaknesses = generate_weaknesses(missing_skills)
 
@@ -68,7 +69,7 @@ if st.button("Analyze"):
         st.write(jd_skills)
 
         st.subheader("⚠️ Missing Skills")
-        
+
         if missing_skills:
             st.write(missing_skills)
         else:
@@ -76,14 +77,20 @@ if st.button("Analyze"):
 
         st.subheader("💪 Strengths")
 
-        for strength in strengths:
-            st.success(strength)
+        if strengths:
+            for strength in strengths:
+                st.success(strength)
+        else:
+            st.info("No major strengths detected yet.")
 
         st.subheader("⚠ Weaknesses")
 
-        for weakness in weaknesses:
-            st.warning(weakness)
-        
+        if weaknesses:
+            for weakness in weaknesses:
+                st.warning(weakness)
+        else:
+            st.success("No major weaknesses found.")
+
         st.subheader("📚 Learning Roadmap")
 
         if recommendations:
@@ -91,3 +98,21 @@ if st.button("Analyze"):
                 st.write("•", recommendation)
         else:
             st.success("Excellent! No major skill gaps found.")
+
+        pdf_path = create_pdf_report(
+            score,
+            cv_skills,
+            jd_skills,
+            missing_skills,
+            recommendations,
+            strengths,
+            weaknesses
+        )
+
+        with open(pdf_path, "rb") as pdf_file:
+            st.download_button(
+                label="📄 Download Career Report PDF",
+                data=pdf_file,
+                file_name="career_report.pdf",
+                mime="application/pdf"
+            )

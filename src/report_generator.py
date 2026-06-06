@@ -71,3 +71,71 @@ def generate_weaknesses(missing_skills):
         weaknesses.append(f"Missing skill: {skill}")
 
     return weaknesses
+
+
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+
+
+def create_pdf_report(score, cv_skills, jd_skills, missing_skills, recommendations, strengths, weaknesses):
+    file_path = "career_report.pdf"
+
+    c = canvas.Canvas(file_path, pagesize=A4)
+    width, height = A4
+
+    y = height - 50
+
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(50, y, "AI Career Intelligence Report")
+
+    y -= 40
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, f"ATS Match Score: {score}%")
+
+    y -= 35
+    c.drawString(50, y, "CV Skills:")
+    c.setFont("Helvetica", 10)
+
+    for skill in cv_skills:
+        y -= 18
+        c.drawString(70, y, f"- {skill}")
+
+    y -= 30
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "Missing Skills:")
+    c.setFont("Helvetica", 10)
+
+    for skill in missing_skills:
+        y -= 18
+        c.drawString(70, y, f"- {skill}")
+
+    y -= 30
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "Strengths:")
+    c.setFont("Helvetica", 10)
+
+    for strength in strengths:
+        y -= 18
+        c.drawString(70, y, f"- {strength}")
+
+    y -= 30
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "Weaknesses:")
+    c.setFont("Helvetica", 10)
+
+    for weakness in weaknesses:
+        y -= 18
+        c.drawString(70, y, f"- {weakness}")
+
+    y -= 30
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "Learning Roadmap:")
+    c.setFont("Helvetica", 10)
+
+    for recommendation in recommendations:
+        y -= 18
+        c.drawString(70, y, f"- {recommendation}")
+
+    c.save()
+
+    return file_path
