@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 from src.pdf_reader import extract_text_from_pdf
 from src.skill_extractor import extract_skills
@@ -233,6 +234,36 @@ if analyze_button:
             )
 
         st.markdown("<br>", unsafe_allow_html=True)
+
+        chart_col1, chart_col2 = st.columns(2)
+
+        with chart_col1:
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">📊 Skill Match Overview</div>', unsafe_allow_html=True)
+
+            matched_count = len(jd_skills) - len(missing_skills)
+
+            skill_chart_data = pd.DataFrame({
+                "Category": ["Matched Skills", "Missing Skills"],
+                "Count": [matched_count, len(missing_skills)]
+            })
+
+            st.bar_chart(skill_chart_data.set_index("Category"))
+
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with chart_col2:
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">🎯 Career Role Match Scores</div>', unsafe_allow_html=True)
+
+            role_chart_data = pd.DataFrame({
+                "Role": [role["role"] for role in role_recommendations[:5]],
+                "Score": [role["score"] for role in role_recommendations[:5]]
+            })
+
+            st.bar_chart(role_chart_data.set_index("Role"))
+
+            st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="result-card">', unsafe_allow_html=True)
         st.markdown('<div class="section-title">✅ Skills Found in Your CV</div>', unsafe_allow_html=True)
