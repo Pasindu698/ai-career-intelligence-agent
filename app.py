@@ -3,6 +3,7 @@ import streamlit as st
 from src.pdf_reader import extract_text_from_pdf
 from src.skill_extractor import extract_skills
 from src.matcher import calculate_match_score, find_missing_skills
+from src.report_generator import generate_recommendations
 
 st.set_page_config(
     page_title="AI Career Intelligence Agent",
@@ -37,6 +38,7 @@ if st.button("Analyze"):
 
         score = calculate_match_score(cv_skills, jd_skills)
         missing_skills = find_missing_skills(cv_skills, jd_skills)
+        recommendations = generate_recommendations(missing_skills)
 
         st.success("Analysis completed!")
 
@@ -58,7 +60,16 @@ if st.button("Analyze"):
         st.write(jd_skills)
 
         st.subheader("⚠️ Missing Skills")
+        
         if missing_skills:
             st.write(missing_skills)
         else:
             st.success("No missing skills found!")
+        
+        st.subheader("📚 Learning Roadmap")
+
+        if recommendations:
+            for recommendation in recommendations:
+                st.write("•", recommendation)
+        else:
+            st.success("Excellent! No major skill gaps found.")
