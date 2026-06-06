@@ -1,5 +1,6 @@
 import streamlit as st
 
+from src.role_recommender import recommend_roles
 from src.pdf_reader import extract_text_from_pdf
 from src.skill_extractor import extract_skills
 from src.matcher import calculate_match_score, find_missing_skills
@@ -16,14 +17,45 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("""
+<style>
+.block-container {
+    padding-top: 2rem;
+}
+
+.section-box {
+    background-color: #ffffff;
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 16px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("🤖 AI Career Intelligence Agent")
-st.write("Upload your CV and paste a job description to analyze your career match.")
+
+st.markdown("""
+### Smart Resume & Job Description Analyzer
+Analyze your CV against a job description and receive an ATS score, missing skills, strengths, weaknesses, learning roadmap, and downloadable career report.
+""")
+
+with st.sidebar:
+    st.header("📌 About")
+    st.write("This AI Career Intelligence Agent helps job seekers evaluate their CV against job descriptions.")
+
+    st.header("⚙️ Features")
+    st.write("✅ ATS Match Score")
+    st.write("✅ Missing Skills")
+    st.write("✅ Learning Roadmap")
+    st.write("✅ Strengths & Weaknesses")
+    st.write("✅ PDF Career Report")
 
 uploaded_cv = st.file_uploader("Upload your CV PDF", type=["pdf"])
 
 job_description = st.text_area(
     "Paste Job Description",
-    height=200,
+    height=220,
     placeholder="Paste the full job description here..."
 )
 
@@ -48,6 +80,7 @@ if st.button("Analyze"):
         recommendations = generate_recommendations(missing_skills)
         strengths = generate_strengths(cv_skills)
         weaknesses = generate_weaknesses(missing_skills)
+        role_recommendations = recommend_roles(cv_skills)
 
         st.success("Analysis completed!")
 
@@ -61,6 +94,8 @@ if st.button("Analyze"):
 
         with col3:
             st.metric("JD Skills Required", len(jd_skills))
+
+        st.divider()
 
         st.subheader("✅ Skills Found in Your CV")
         st.write(cv_skills)
@@ -98,6 +133,20 @@ if st.button("Analyze"):
                 st.write("•", recommendation)
         else:
             st.success("Excellent! No major skill gaps found.")
+
+        st.subheader("🎯 Recommended Career Roles")
+
+        for role in role_recommendations[:4]:
+            st.write(f"**{role['role']}** - {role['score']}% match")
+            st.progress(role["score"] / 100)
+            st.caption(f"Matched skills: {', '.join(role['matched_skills'])}")
+
+            if role["missing_skills"]:
+                st.caption(f"Missing skills: {', '.join(role['missing_skills'])}")
+
+            st.write("---")
+            
+        st.divider()
 
         pdf_path = create_pdf_report(
             score,
