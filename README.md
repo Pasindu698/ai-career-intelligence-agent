@@ -57,9 +57,9 @@ The goal of this project is to help students, graduates, and job seekers improve
 * Download complete analysis report
 * Includes ATS score, strengths, weaknesses, skill gaps, and recommendations
 
-### 🤖 AI Resume Feedback (Experimental)
+### 🤖 AI Resume Feedback 
 
-* Gemini AI integration (currently under development)
+* Gemini AI integration 
 * AI-powered resume review and career guidance
 * Future enhancement for advanced personalized feedback
 
